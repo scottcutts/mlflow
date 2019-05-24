@@ -23,6 +23,15 @@ class S3ArtifactRepository(ArtifactRepository):
             path = path[1:]
         return parsed.netloc, path
 
+    @staticmethod
+    def get_s3_file_upload_extra_args():
+        import json
+        s3_file_upload_extra_args = os.environ.get('MLFLOW_S3_UPLOAD_EXTRA_ARGS')
+        if s3_file_upload_extra_args:
+            return json.loads(s3_file_upload_extra_args)
+        else:
+            return None
+
     def _get_s3_client(self):
         s3_endpoint_url = os.environ.get('MLFLOW_S3_ENDPOINT_URL')
         return boto3.client('s3', endpoint_url=s3_endpoint_url)
@@ -38,7 +47,7 @@ class S3ArtifactRepository(ArtifactRepository):
         dest_path = self.get_path_module().join(
             dest_path, self.get_path_module().basename(local_file))
         s3_client = self._get_s3_client()
-        s3_client.upload_file(local_file, bucket, dest_path)
+        s3_client.upload_file(local_file, bucket, dest_path, self.get_s3_file_upload_extra_args())
 
     def log_artifacts(self, local_dir, artifact_path=None):
         (bucket, dest_path) = data.parse_s3_uri(self.artifact_uri)
@@ -55,7 +64,8 @@ class S3ArtifactRepository(ArtifactRepository):
                 s3_client.upload_file(
                         self.get_path_module().join(root, f),
                         bucket,
-                        self.get_path_module().join(upload_path, f))
+                        self.get_path_module().join(upload_path, f),
+                        self.get_s3_file_upload_extra_args())
 
     def list_artifacts(self, path=None):
         (bucket, artifact_path) = data.parse_s3_uri(self.artifact_uri)

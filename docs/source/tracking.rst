@@ -325,6 +325,15 @@ For example, if you have a Minio server at 1.2.3.4 on port 9000:
 
   export MLFLOW_S3_ENDPOINT_URL=http://1.2.3.4:9000
 
+To add S3 file upload extra arguments, set ``MLFLOW_S3_UPLOAD_EXTRA_ARGS`` to a JSON object of key/value pairs.
+For example, if you want to upload to a KMS Encrypted bucket using the KMS Key 1234:
+
+.. code-block:: bash
+
+  export MLFLOW_S3_UPLOAD_EXTRA_ARGS="{\"ServerSideEncryption\": \"aws:kms\", \"SSEKMSKeyId\": \"1234\"}"
+
+For a list of available extra args see `Boto3 ExtraArgs Documentation <https://github.com/boto/boto3/blob/develop/docs/source/guide/s3-uploading-files.rst#the-extraargs-parameter>`_.
+
 Azure Blob Storage
 ^^^^^^^^^^^^^^^^^^
 
